@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AkaiNova AI – Prompt Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app">
+    <h1>AkaiNova AI</h1>
+    <p class="tagline">Smart Prompt Generator</p>
+
+    <textarea id="input" placeholder="Enter your idea..."></textarea>
+
+    <select id="type">
+      <option value="image">Image Generator</option>
+      <option value="logo">Logo Design</option>
+      <option value="video">Video Prompt</option>
+      <option value="story">Story Writing</option>
+      <option value="code">Code Assistant</option>
+    </select>
+
+    <button onclick="generatePrompt()">Generate Prompt</button>
+
+    <pre id="output"></pre>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
