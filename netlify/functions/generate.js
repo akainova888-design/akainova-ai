@@ -1,8 +1,14 @@
-import fetch from "node-fetch";
-
-export const handler = async (event) => {
+exports.handler = async (event) => {
   try {
-    const { prompt } = JSON.parse(event.body);
+    const body = JSON.parse(event.body || "{}");
+    const prompt = body.prompt;
+
+    if (!prompt) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "No prompt provided" })
+      };
+    }
 
     const response = await fetch("https://fal.run/fal-ai/flux/schnell", {
       method: "POST",
@@ -20,7 +26,9 @@ export const handler = async (event) => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ image: data.images[0].url })
+      body: JSON.stringify({
+        image_url: data.images[0].url
+      })
     };
 
   } catch (err) {
