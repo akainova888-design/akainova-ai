@@ -1,55 +1,42 @@
-const https = require("https");
+async function generatePrompt() {
+  const input = document.getElementById("input").value;
+  const type = document.getElementById("type").value;
+  const output = document.getElementById("output");
 
-exports.handler = async (event) => {
+  if (!input) {
+    output.innerText = "⚠️ Please enter a prompt!";
+    return;
+  }
+
+  output.innerText = "⏳ Generating image...";
+
   try {
-    const body = JSON.parse(event.body || "{}");
-    const prompt = body.prompt;
-
-    if (!prompt) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "No prompt provided" })
-      };
-    }
-
-    const data = JSON.stringify({
-      prompt: prompt,
-      image_size: "square_hd"
-    });
-
-    const options = {
-      hostname: "fal.run",
-      path: "/fal-ai/flux/schnell",
+    const res = await fetch("/.netlify/functions/generate", {
       method: "POST",
       headers: {
-        "Authorization": `Key ${process.env.FAL_KEY}`,
-        "Content-Type": "application/json",
-        "Content-Length": data.length
-      }
-    };
-
-    const response = await new Promise((resolve, reject) => {
-      const req = https.request(options, (res) => {
-        let body = "";
-        res.on("data", (chunk) => body += chunk);
-        res.on("end", () => resolve(body));
-      });
-      req.on("error", reject);
-      req.write(data);
-      req.end();
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        prompt: input,
+        type: type
+      })
     });
 
-    const json = JSON.parse(response);
+    const data = await res.json();
+    console.log(data);
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ image_url: json.images[0].url })
-    };
+    if (data.image_url) {
+      output.innerHTML = `
+        <img src="${data.image_url}" style="max-width:100%;border-radius:12px;margin-top:10px;" />
+      `;
+    } else if (data.error) {
+      output.innerText = "❌ " + data.error;
+    } else {
+      output.innerText = "❌ Unknown response.";
+    }
 
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: err.message })
-    };
+    console.error(err);
+    output.innerText = "🚫 Network error.";
   }
-};
+}
