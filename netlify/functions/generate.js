@@ -1,4 +1,4 @@
-exports.handler = async (event) => {
+export const handler = async (event) => {
   try {
     const body = JSON.parse(event.body || "{}");
     const prompt = body.prompt;
@@ -23,6 +23,14 @@ exports.handler = async (event) => {
     });
 
     const data = await response.json();
+    console.log("FAL Response:", data);
+
+    if (!data.images || !data.images[0]?.url) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: "No image returned", raw: data })
+      };
+    }
 
     return {
       statusCode: 200,
@@ -32,6 +40,7 @@ exports.handler = async (event) => {
     };
 
   } catch (err) {
+    console.error("Function Error:", err);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: err.message })
